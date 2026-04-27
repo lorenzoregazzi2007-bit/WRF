@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Home, Wrench, Clock, FileText } from 'lucide-react';
+import { Home, Wrench, Clock } from 'lucide-react';
 import './index.css';
+import { dataService } from './dataService';
+import { Cloud, CloudOff } from 'lucide-react';
 
 // Pages
 import Dashboard from './pages/Dashboard';
 import Track from './pages/Track';
 import Maintenance from './pages/Maintenance';
+import Settings from './pages/Settings';
 
 const initialComponents = [
   { id: 1, name: 'Olio Motore', currentHoursAtLastChange: 0, interval: 5, critical: false },
@@ -21,7 +24,8 @@ const BottomNav = () => {
   const navItems = [
     { path: '/', icon: Home, label: 'Home' },
     { path: '/track', icon: Clock, label: 'Contaore' },
-    { path: '/maintenance', icon: Wrench, label: 'Garage' }
+    { path: '/maintenance', icon: Wrench, label: 'Garage' },
+    { path: '/settings', icon: Cloud, label: 'Cloud' }
   ];
 
   return (
@@ -57,17 +61,31 @@ function App() {
     return [];
   });
 
-  useEffect(() => {
-    localStorage.setItem('wrf_currentHours', currentHours.toString());
-  }, [currentHours]);
+  const [isSyncing, setIsSyncing] = useState(false);
 
+  // Sync effect
   useEffect(() => {
-    localStorage.setItem('wrf_components', JSON.stringify(components));
-  }, [components]);
+    const data = { currentHours, components, logs };
+    dataService.saveLocal(data);
+    
+    // Sync to cloud if possible
+    setIsSyncing(true);
+    dataService.saveCloud(data).finally(() => {
+      setTimeout(() => setIsSyncing(false), 1000);
+    });
+  }, [currentHours, components, logs]);
 
+  // Initial load from cloud (Optional)
   useEffect(() => {
-    localStorage.setItem('wrf_logs', JSON.stringify(logs));
-  }, [logs]);
+    const unsubscribe = dataService.subscribeToCloud((cloudData) => {
+      if (cloudData) {
+        // Here we could prompt the user to merge or overwrite
+        // For now, let's just log it
+        console.log("Dati cloud rilevati:", cloudData);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleUpdateHours = (hours) => {
     setCurrentHours(Number(hours));
@@ -96,8 +114,11 @@ function App() {
   return (
     <Router>
       <div className="app-container">
-        <header className="top-header">
-          <h2 style={{ fontFamily: 'Outfit', fontWeight: '800' }}>WR450<span style={{ color: 'var(--yamaha-blue)' }}>APP</span></h2>
+        <header className="top-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 20px' }}>
+          <h2 style={{ fontFamily: 'Outfit', fontWeight: '800', margin: 0 }}>WR450<span style={{ color: 'var(--yamaha-blue)' }}>APP</span></h2>
+          <div style={{ color: isSyncing ? 'var(--yamaha-blue-light)' : 'var(--text-muted)', transition: 'color 0.3s' }}>
+            {isSyncing ? <Cloud size={18} className="animate-pulse" /> : <Cloud size={18} opacity={0.5} />}
+          </div>
         </header>
         
         <main>
@@ -105,6 +126,7 @@ function App() {
             <Route path="/" element={<Dashboard currentHours={currentHours} components={components} />} />
             <Route path="/track" element={<Track currentHours={currentHours} handleUpdateHours={handleUpdateHours} />} />
             <Route path="/maintenance" element={<Maintenance currentHours={currentHours} components={components} handleMarkDone={handleMarkDone} logs={logs} />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>
         

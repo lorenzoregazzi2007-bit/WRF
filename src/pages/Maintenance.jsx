@@ -1,4 +1,3 @@
-import React from 'react';
 import { AlertTriangle, CheckCircle2, History } from 'lucide-react';
 
 export default function Maintenance({ currentHours, components, handleMarkDone, logs }) {

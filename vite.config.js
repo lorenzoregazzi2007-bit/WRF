@@ -5,4 +5,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/WRF/',
+  root: 'C:/Users/Loribank/Desktop/Progetti GitHub/WRF',
+  build: {
+    outDir: 'C:/Users/Loribank/Desktop/Progetti GitHub/WRF/dist',
+    emptyOutDir: true,
+  }
 })
