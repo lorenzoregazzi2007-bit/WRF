@@ -1,42 +1,41 @@
-import { db } from './firebase';
-import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+// dataService.js — Salvataggio locale + Firebase opzionale
+import { getDB } from './firebase';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 
 const STORAGE_KEY = 'wrf_data';
-const CLOUD_DOC_ID = 'user_moto_data'; // Ideally this should be custom or per-user
+const DOC_ID = 'moto_principale';
 
 export const dataService = {
-  // Save locally
-  saveLocal: (data) => {
+
+  saveLocal(data) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   },
 
-  // Load locally
-  loadLocal: () => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : null;
+  loadLocal() {
+    try {
+      const s = localStorage.getItem(STORAGE_KEY);
+      return s ? JSON.parse(s) : null;
+    } catch { return null; }
   },
 
-  // Save to Cloud (Firebase)
-  saveCloud: async (data) => {
+  async saveCloud(data) {
+    const db = getDB();
     if (!db) return;
     try {
-      await setDoc(doc(db, 'maintenance', CLOUD_DOC_ID), {
+      await setDoc(doc(db, 'maintenance', DOC_ID), {
         ...data,
         updatedAt: new Date().toISOString()
       });
-      console.log("☁️ Dati sincronizzati sul cloud");
-    } catch (error) {
-      console.error("❌ Errore sync cloud:", error);
+    } catch (e) {
+      console.warn("Sync cloud fallita:", e.message);
     }
   },
 
-  // Listen for cloud changes (Optional for real-time)
-  subscribeToCloud: (callback) => {
+  subscribeToCloud(callback) {
+    const db = getDB();
     if (!db) return () => {};
-    return onSnapshot(doc(db, 'maintenance', CLOUD_DOC_ID), (doc) => {
-      if (doc.exists()) {
-        callback(doc.data());
-      }
-    });
+    return onSnapshot(doc(db, 'maintenance', DOC_ID), snapshot => {
+      if (snapshot.exists()) callback(snapshot.data());
+    }, () => {});
   }
 };

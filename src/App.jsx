@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Home, Wrench, Clock } from 'lucide-react';
+import { Home, Wrench, Clock, Cloud, Settings as SettingsIcon } from 'lucide-react';
 import './index.css';
 import { dataService } from './dataService';
-import { Cloud, CloudOff } from 'lucide-react';
 
-// Pages
 import Dashboard from './pages/Dashboard';
 import Track from './pages/Track';
 import Maintenance from './pages/Maintenance';
@@ -25,7 +23,7 @@ const BottomNav = () => {
     { path: '/', icon: Home, label: 'Home' },
     { path: '/track', icon: Clock, label: 'Contaore' },
     { path: '/maintenance', icon: Wrench, label: 'Garage' },
-    { path: '/settings', icon: Cloud, label: 'Cloud' }
+    { path: '/settings', icon: SettingsIcon, label: 'Cloud' }
   ];
 
   return (
@@ -38,7 +36,7 @@ const BottomNav = () => {
             <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
             <span style={{ fontSize: '0.7rem', fontWeight: isActive ? '600' : '400' }}>{item.label}</span>
           </Link>
-        )
+        );
       })}
     </div>
   );
@@ -63,29 +61,16 @@ function App() {
 
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Sync effect
+  // Salva in locale e prova sync cloud ad ogni modifica
   useEffect(() => {
-    const data = { currentHours, components, logs };
-    dataService.saveLocal(data);
-    
-    // Sync to cloud if possible
-    setIsSyncing(true);
-    dataService.saveCloud(data).finally(() => {
-      setTimeout(() => setIsSyncing(false), 1000);
-    });
-  }, [currentHours, components, logs]);
+    localStorage.setItem('wrf_currentHours', currentHours.toString());
+    localStorage.setItem('wrf_components', JSON.stringify(components));
+    localStorage.setItem('wrf_logs', JSON.stringify(logs));
 
-  // Initial load from cloud (Optional)
-  useEffect(() => {
-    const unsubscribe = dataService.subscribeToCloud((cloudData) => {
-      if (cloudData) {
-        // Here we could prompt the user to merge or overwrite
-        // For now, let's just log it
-        console.log("Dati cloud rilevati:", cloudData);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+    setIsSyncing(true);
+    dataService.saveCloud({ currentHours, components, logs })
+      .finally(() => setTimeout(() => setIsSyncing(false), 800));
+  }, [currentHours, components, logs]);
 
   const handleUpdateHours = (hours) => {
     setCurrentHours(Number(hours));
@@ -95,18 +80,15 @@ function App() {
     const comp = components.find(c => c.id === id);
     if (!comp) return;
 
-    // Aggiungi al log
     const newLog = {
       id: Date.now(),
       date: new Date().toLocaleDateString('it-IT'),
       componentName: comp.name,
       hours: currentHours
     };
-    
-    setLogs([newLog, ...logs]);
 
-    // Aggiorna componenti
-    setComponents(components.map(c => 
+    setLogs([newLog, ...logs]);
+    setComponents(components.map(c =>
       c.id === id ? { ...c, currentHoursAtLastChange: currentHours } : c
     ));
   };
@@ -116,11 +98,16 @@ function App() {
       <div className="app-container">
         <header className="top-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 20px' }}>
           <h2 style={{ fontFamily: 'Outfit', fontWeight: '800', margin: 0 }}>WR450<span style={{ color: 'var(--yamaha-blue)' }}>APP</span></h2>
-          <div style={{ color: isSyncing ? 'var(--yamaha-blue-light)' : 'var(--text-muted)', transition: 'color 0.3s' }}>
-            {isSyncing ? <Cloud size={18} className="animate-pulse" /> : <Cloud size={18} opacity={0.5} />}
-          </div>
+          <Cloud
+            size={18}
+            style={{
+              color: isSyncing ? 'var(--yamaha-blue-light)' : 'var(--text-muted)',
+              transition: 'color 0.3s',
+              opacity: isSyncing ? 1 : 0.4
+            }}
+          />
         </header>
-        
+
         <main>
           <Routes>
             <Route path="/" element={<Dashboard currentHours={currentHours} components={components} />} />
@@ -129,7 +116,7 @@ function App() {
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>
-        
+
         <BottomNav />
       </div>
     </Router>
