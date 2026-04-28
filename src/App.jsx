@@ -76,6 +76,12 @@ function App() {
     setCurrentHours(Number(hours));
   };
 
+  const handleUpdateInterval = (id, newInterval) => {
+    setComponents(components.map(c =>
+      c.id === id ? { ...c, interval: newInterval } : c
+    ));
+  };
+
   const handleMarkDone = (id) => {
     const comp = components.find(c => c.id === id);
     if (!comp) return;
@@ -112,7 +118,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard currentHours={currentHours} components={components} />} />
             <Route path="/track" element={<Track currentHours={currentHours} handleUpdateHours={handleUpdateHours} />} />
-            <Route path="/maintenance" element={<Maintenance currentHours={currentHours} components={components} handleMarkDone={handleMarkDone} logs={logs} />} />
+            <Route path="/maintenance" element={<Maintenance currentHours={currentHours} components={components} handleMarkDone={handleMarkDone} handleUpdateInterval={handleUpdateInterval} logs={logs} />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>

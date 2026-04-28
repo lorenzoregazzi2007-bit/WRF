@@ -27,12 +27,12 @@ export function setupFirebase(config) {
   }
 }
 
-// Inizializza con le credenziali ENV al caricamento
+// Inizializza con le credenziali reali
 setupFirebase({
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyCxUrNR7D6X0VY7A872awxMKCNUhemjsUc",
+  authDomain: "wr450app.firebaseapp.com",
+  projectId: "wr450app",
+  storageBucket: "wr450app.firebasestorage.app",
+  messagingSenderId: "787952086469",
+  appId: "1:787952086469:web:a1f3d153b63db0189b2fac",
 });
