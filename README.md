@@ -1,16 +1,137 @@
-# React + Vite
+# 🏍 WRF Dashboard
+### Premium PWA Dashboard · Yamaha WR450F 2017
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Deploy](https://github.com/lorenzoregazzi2007-bit/WRF/actions/workflows/deploy.yml/badge.svg)](https://github.com/lorenzoregazzi2007-bit/WRF/actions/workflows/deploy.yml)
 
-Currently, two official plugins are available:
+> Dashboard moto premium installabile su iPhone, ottimizzata per uso in moto, fullscreen, leggibile al sole.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**🌐 Live App:** https://lorenzoregazzi2007-bit.github.io/WRF/
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📱 Funzionalità
 
-## Expanding the ESLint configuration
+### 🚀 Dashboard Speed (schermata principale)
+- **Tachimetro GPS** enorme con grafica ad arco SVG animata
+- Glow neon dinamico che cambia colore con la velocità (verde → cyan → giallo → rosso)
+- Temperatura esterna via **Open-Meteo** (gratuito, no API key)
+- Altitudine GPS, direzione cardinale, bussola
+- Stato GPS in tempo reale con precisione in metri
+- Distanza sessione e velocità massima
+- Avviso manutenzione in scadenza sempre visibile
+- Pulsante avvia/stop sessione
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 📊 Stats
+- Velocità massima, media, distanza, durata
+- **Grafico sparkline** velocità sessione
+- **Gauge circolari** animati (performance, distanza, durata)
+- Storico sessioni con export **JSON**
+
+### ⚡ Ride (Telemetria)
+- **Cronometro** con timer giri (lap timer)
+- **G-Force** in tempo reale via accelerometro iPhone
+- **Inclinazione moto** con gauge visuale animata
+- Accelerazione su 3 assi (X, Y, Z)
+- Registrazione GPS toggle
+
+### 🗺 Mappa
+- **OpenStreetMap** caricato da CDN (nessun bundle extra)
+- Tracking GPS in tempo reale con **polyline cyan**
+- Marcatore posizione attuale animato
+- **Salva "Casa"** e navigazione home
+- Export **GPX** del percorso registrato
+
+### 🔧 Garage (Manutenzione)
+- 7 componenti moto preconfigurati con intervalli personalizzabili
+- Barre di progresso con colori status (ok/warn/critico)
+- Contaore digitale con aggiornamento manuale
+- Storico manutenzioni completo
+
+### ⚙️ Impostazioni
+- Toggle KM/H ↔ MPH
+- 3 temi colore (Yamaha Blue, Rally Green, Rally Amber)
+- Smoothing GPS toggle
+- Modalità Pioggia / Rally
+- Reset dati completo
+
+---
+
+## 🛠 Stack Tecnico
+
+| Tool | Uso |
+|------|-----|
+| React 18 + Vite 5 | Framework + bundler |
+| Vanilla CSS | Design system completo |
+| Web Geolocation API | GPS velocità + posizione |
+| DeviceMotion API | G-force + inclinazione |
+| DeviceOrientation API | Bussola |
+| Open-Meteo API | Temperatura (gratuito) |
+| Leaflet.js (CDN) | Mappa OpenStreetMap |
+| localStorage | Persistenza dati offline |
+| GitHub Actions | CI/CD automatico |
+| GitHub Pages | Hosting gratuito |
+
+---
+
+## 🚀 Deploy & Sviluppo
+
+### Avvia in locale
+```bash
+npm install
+npm run dev
+```
+
+### Build produzione
+```bash
+npm run build
+```
+
+### Deploy automatico
+Ogni `git push` su `master` triggera GitHub Actions che:
+1. Installa dipendenze
+2. Fa la build Vite
+3. Deploya su GitHub Pages
+
+---
+
+## 📲 Installazione su iPhone
+
+1. Apri **Safari** → `https://lorenzoregazzi2007-bit.github.io/WRF/`
+2. Tap **Condividi** → **Aggiungi a schermata Home**
+3. L'app si apre in **fullscreen standalone** come app nativa
+
+---
+
+## ⚙️ Struttura Progetto
+
+```
+WRF/
+├── public/
+│   ├── manifest.json        # PWA manifest
+│   └── icons/               # Icone app
+├── src/
+│   ├── App.jsx              # Router + stato globale
+│   ├── index.css            # Design system completo
+│   ├── main.jsx             # Entry point React
+│   └── pages/
+│       ├── SpeedDashboard.jsx  # Tachimetro GPS principale
+│       ├── Stats.jsx           # Statistiche + grafici
+│       ├── RidePage.jsx        # Telemetria + cronometro
+│       ├── MapPage.jsx         # Mappa OpenStreetMap
+│       ├── Garage.jsx          # Manutenzione moto
+│       └── SettingsPage.jsx    # Impostazioni
+├── .github/workflows/
+│   └── deploy.yml           # GitHub Actions auto-deploy
+├── vite.config.js
+└── index.html               # PWA meta tags
+```
+
+---
+
+## ⚠️ Disclaimer
+
+> Non usare questa app in modo pericoloso durante la guida. Rispetta sempre il codice della strada.
+
+---
+
+*WRF Dashboard — Fatto per Yamaha WR450F 2017 · Antigravity AI*
